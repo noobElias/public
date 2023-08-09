@@ -1,0 +1,13 @@
+$token = '' ##tokenhere
+$res = Invoke-RestMethod -Method get -Uri 'https://graph.microsoft.com/beta/deviceAppManagement/mobileApps'  -Headers @{Authorization = "$token" } -ContentType "application/json"
+$win32 = $res.value | where "@odata.type" -Match "#microsoft.graph.win32LobApp"
+$body = @{
+    "@odata.type" = "#microsoft.graph.win32LobApp"
+    allowAvailableUninstall = $true
+} | ConvertTo-Json
+
+for($i=0;$i -lt $win32.Count;$i++){
+    Write-Host $win32[$i].displayName
+    Invoke-RestMethod -Method Patch -Uri "https://graph.microsoft.com/beta/deviceAppManagement/mobileApps/$($win32[$i].id)"  -Headers @{Authorization = "$token" } -ContentType "application/json" -Body $body
+
+}
